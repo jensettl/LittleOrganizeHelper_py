@@ -40,7 +40,7 @@ def autoSort(file: Path) -> None:
 
 
 def main():
-    if not path.exists() or not path.is_dir():
+    if not PATH.exists() or not PATH.is_dir():
         logging.error("Path is invalid")
         return
 
@@ -49,7 +49,7 @@ def main():
     # Automatically sort files
     if setting.lower() == "y":
         # Iterate through files and automatically move them to the right folder
-        for file in path.iterdir():
+        for file in PATH.iterdir():
             if not file.is_file():
                 continue
 
@@ -59,12 +59,12 @@ def main():
     elif setting.lower() == "n":
         logging.info("Start iterating manually")
 
-        for file in path.iterdir():
+        for file in PATH.iterdir():
             if not file.is_file():
                 continue
 
             print(
-                f"File: {file.name} | File format: {file.suffix} | File size: {file.stat().st_size} bytes"
+                f"File: {file.name} | File format: {file.suffix} | File size: {round(file.stat().st_size/1000000,2)} Megabytes"
             )
 
             action = input(
@@ -77,7 +77,7 @@ def main():
             elif action == "2":
                 logging.info(f"Deleted {file.name} from {file.parent} folder")
                 print(f"...File {file} deleted\n")
-                os.remove(path / file)
+                os.remove(PATH / file)
             elif action == "3":
                 logging.info(f"Skipped {file.name} from {file.parent} folder")
                 print(f"...File {file} skipped\n")
