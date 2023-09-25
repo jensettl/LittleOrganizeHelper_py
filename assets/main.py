@@ -4,7 +4,7 @@ from pathlib import Path
 from ressources import FILE_FORMAT_FOLDERS
 
 # path to downloads folder of current OS user
-path: Path = Path.home() / "Downloads"
+PATH: Path = Path.home() / "Downloads"
 fileFormats = list(FILE_FORMAT_FOLDERS.keys())
 fileTypes = list(FILE_FORMAT_FOLDERS.values())
 
