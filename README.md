@@ -19,3 +19,7 @@ The script defines a dictionary called `FILE_FORMAT_FOLDERS` in `ressources.py` 
 3. Adjust the `PATH` variable in `ressources.py` to the path of the directory you want to sort.
 4. Add any file formats you want to sort to the `FILE_FORMAT_FOLDERS` dictionary in `ressources.py`.
 5. Choose whether you want to automatically sort your files or manually sort them.
+
+### Additional Information
+
+Tested on Windows 10
