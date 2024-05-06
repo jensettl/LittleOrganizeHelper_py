@@ -44,7 +44,8 @@ def main():
         logging.error("Path is invalid")
         return
 
-    setting = input("Do you want to automatically sort your files? (Y/n) > ")
+    # setting = input("Do you want to automatically sort your files? (Y/n) > ")
+    setting = "y"
 
     # Automatically sort files
     if setting.lower() == "y":
