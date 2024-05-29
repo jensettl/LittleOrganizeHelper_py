@@ -24,19 +24,31 @@ def autoSort(file: Path) -> None:
         folder_name: str = FILE_FORMAT_FOLDERS[file_format_type]
         folder_path: Path = file.parent / folder_name
 
-        if not folder_path.exists():
-            folder_path.mkdir()
+        try:
+            if not folder_path.exists():
+                folder_path.mkdir()
+        except FileExistsError:
+            logging.error(f"Folder {folder_name} already exists")
 
-        logging.info(f"Moving {file.name} to {folder_name} folder")
-        file.rename(folder_path / file.name)
+        try:
+            logging.info(f"Moving {file.name} to {folder_name} folder")
+            file.rename(folder_path / file.name)
+        except FileExistsError:
+            logging.error(f"File {file.name} already exists in {folder_name} folder")
     else:
         logging.info(f"No file format found for {file.name}. Moving to 'Other' folder")
         other_folder_path: Path = file.parent / "Other"
 
-        if not other_folder_path.exists():
-            other_folder_path.mkdir()
+        try:
+            if not other_folder_path.exists():
+                other_folder_path.mkdir()
+        except FileExistsError:
+            logging.error("Folder 'Other' already exists")
 
-        file.rename(other_folder_path / file.name)
+        try:
+            file.rename(other_folder_path / file.name)
+        except FileExistsError:
+            logging.error(f"File {file.name} already exists in 'Other' folder")
 
 
 def main():
