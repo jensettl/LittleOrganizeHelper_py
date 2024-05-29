@@ -8,6 +8,12 @@ PATH: Path = Path.home() / "Downloads"
 fileFormats = list(FILE_FORMAT_FOLDERS.keys())
 fileTypes = list(FILE_FORMAT_FOLDERS.values())
 
+log_file = Path("logs/file_sorter.log")
+
+# Create the log file if it doesn't exist
+if not log_file.exists():
+    log_file.touch()
+
 # Set up logging
 logging.basicConfig(
     level=logging.INFO,
