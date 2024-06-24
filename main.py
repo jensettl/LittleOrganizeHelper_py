@@ -10,11 +10,9 @@ FILEFORMATS = list(FILE_FORMAT_FOLDERS.keys())  # List of file formats
 FILETYPES = list(FILE_FORMAT_FOLDERS.values())  # List of file types
 LOGFILE = Path("logs/file_sorter.log")  # Path to the log file
 
-# Create the log file if it doesn't exist
 if not LOGFILE.exists():
     LOGFILE.touch()
 
-# Set up logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -34,12 +32,12 @@ def isNotaFile(file: Path) -> bool:
 
 def printFile(file: Path) -> None:
     """Prints the file name, file format, and file size."""
-    print(
-        f"File: {file.name} | File format: {file.suffix} | File size: {round(file.stat().st_size/1000000,2)} Megabytes"
-    )
+    file_info = f"File: {file.name} | File format: {file.suffix} | File size: {round(file.stat().st_size/1000000,2)} Megabytes"
+    hLine = len(file_info) * "-"
+    print(f"{hLine}\n{file_info}\n{hLine}")
 
 
-def autoSort(file: Path) -> None:
+def autoSort(file) -> None:
     """Automatically sorts all files of a folder into the appropriate folder based on its file format."""
     format_type: str = file.suffix.lower()
 
@@ -69,16 +67,16 @@ def autoSort(file: Path) -> None:
             logging.error(f"File {file.name} already exists in 'Other' folder")
 
 
-def manualSort(file: Path) -> None:
+def manualSort(path: Path) -> None:
     """Manually sorts all files of a folder into the appropriate folder based on user input."""
-    for file in PATH.iterdir():
+    for file in path.iterdir():
         if isNotaFile(file):
             continue
 
         printFile(file)
 
         setting = input(
-            "What do you want to do with this file? (1) Move automatically, (2) Delete or (3) Skip) > "
+            "(1) Move automatically, (2) Delete, (3) Skip or (4) Custom Path. Press 'q' to quit) > "
         )
 
         match (setting):
@@ -86,12 +84,21 @@ def manualSort(file: Path) -> None:
                 autoSort(file)
             case "2":
                 logging.info(f"Deleted {file.name} from {file.parent} folder")
-                print(f"...File {file} deleted\n")
                 os.remove(PATH / file)
             case "3":
                 logging.info(f"Skipped {file.name} from {file.parent} folder")
-                print(f"...File {file} skipped\n")
                 continue
+            case "4":
+                customPath = input("Enter the custom path > ")
+                if not Path(customPath).exists():
+                    logging.error(f"Path {customPath} does not exist")
+                    break
+
+                logging.info(f"Moving {file.name} to {customPath} folder")
+                file.rename(Path(customPath) / file.name)
+            case "q":
+                logging.info("Quitting the program")
+                break
             case _:
                 logging.error(f"Invalid Input: {setting}")
                 break
@@ -99,7 +106,7 @@ def manualSort(file: Path) -> None:
 
 def main():
     if invalidPath():
-        logging.error("Path is invalid")
+        logging.error("PATH Variable is invalid")
         return
 
     setting = (
@@ -108,12 +115,12 @@ def main():
 
     match (setting):
         case "y":
-            logging.info("Start iterating auto")
+            logging.info("Start iterating automatically\n")
             for file in PATH.iterdir():
                 if isNotaFile(file):
                     continue
-
                 autoSort(file)
+
         case "n":
             logging.info("Start iterating manually\n")
 
