@@ -2,17 +2,17 @@ import os
 import logging
 from pathlib import Path
 from ressources import FILE_FORMAT_FOLDERS
+import time
 
-# path to downloads folder of current OS user
-PATH: Path = Path.home() / "Downloads"
-fileFormats = list(FILE_FORMAT_FOLDERS.keys())
-fileTypes = list(FILE_FORMAT_FOLDERS.values())
 
-log_file = Path("logs/file_sorter.log")
+PATH: Path = Path.home() / "Downloads"  # Path to the folder you want to sort
+FILEFORMATS = list(FILE_FORMAT_FOLDERS.keys())  # List of file formats
+FILETYPES = list(FILE_FORMAT_FOLDERS.values())  # List of file types
+LOGFILE = Path("logs/file_sorter.log")  # Path to the log file
 
 # Create the log file if it doesn't exist
-if not log_file.exists():
-    log_file.touch()
+if not LOGFILE.exists():
+    LOGFILE.touch()
 
 # Set up logging
 logging.basicConfig(
@@ -22,34 +22,39 @@ logging.basicConfig(
 )
 
 
-def autoSort(file: Path) -> None:
-    """Automatically sorts a file into the appropriate folder based on its file format."""
-    file_format_type: str = file.suffix.lower()
+def invalidPath() -> bool:
+    """Checks if the path is invalid."""
+    return not PATH.exists() or not PATH.is_dir()
 
-    if file_format_type in FILE_FORMAT_FOLDERS:
-        folder_name: str = FILE_FORMAT_FOLDERS[file_format_type]
+
+def isNotaFile(file: Path) -> bool:
+    """Checks if the file is not a file."""
+    return not file.is_file()
+
+
+def autoSort(file: Path) -> None:
+    """Automatically sorts all files of a folder into the appropriate folder based on its file format."""
+    format_type: str = file.suffix.lower()
+
+    if format_type in FILE_FORMAT_FOLDERS:
+        folder_name: str = FILE_FORMAT_FOLDERS[format_type]
         folder_path: Path = file.parent / folder_name
 
-        try:
-            if not folder_path.exists():
-                folder_path.mkdir()
-        except FileExistsError:
-            logging.error(f"Folder {folder_name} already exists")
+        if not folder_path.exists():
+            folder_path.mkdir()
 
         try:
             logging.info(f"Moving {file.name} to {folder_name} folder")
             file.rename(folder_path / file.name)
+            time.sleep(0.2)
         except FileExistsError:
             logging.error(f"File {file.name} already exists in {folder_name} folder")
     else:
         logging.info(f"No file format found for {file.name}. Moving to 'Other' folder")
         other_folder_path: Path = file.parent / "Other"
 
-        try:
-            if not other_folder_path.exists():
-                other_folder_path.mkdir()
-        except FileExistsError:
-            logging.error("Folder 'Other' already exists")
+        if not other_folder_path.exists():
+            other_folder_path.mkdir()
 
         try:
             file.rename(other_folder_path / file.name)
@@ -58,52 +63,29 @@ def autoSort(file: Path) -> None:
 
 
 def main():
-    if not PATH.exists() or not PATH.is_dir():
+    if invalidPath():
         logging.error("Path is invalid")
         return
 
-    # setting = input("Do you want to automatically sort your files? (Y/n) > ")
-    setting = "y"
+    setting = (
+        input("Do you want to automatically sort your files? (Y/n) > ").lower() or "y"
+    )
 
-    # Automatically sort files
-    if setting.lower() == "y":
-        # Iterate through files and automatically move them to the right folder
-        for file in PATH.iterdir():
-            if not file.is_file():
-                continue
+    match (setting):
+        case "y":
+            for file in PATH.iterdir():
+                if isNotaFile(file):
+                    continue
 
-            autoSort(file)
-
-    # Manually sort files
-    elif setting.lower() == "n":
-        logging.info("Start iterating manually")
-
-        for file in PATH.iterdir():
-            if not file.is_file():
-                continue
-
-            print(
-                f"File: {file.name} | File format: {file.suffix} | File size: {round(file.stat().st_size/1000000,2)} Megabytes"
-            )
-
-            action = input(
-                "What do you want to do with this file? (1) Move automatically, (2) Delete or (3) Skip) > "
-            )
-            print("")
-
-            if action == "1":
                 autoSort(file)
-            elif action == "2":
-                logging.info(f"Deleted {file.name} from {file.parent} folder")
-                print(f"...File {file} deleted\n")
-                os.remove(PATH / file)
-            elif action == "3":
-                logging.info(f"Skipped {file.name} from {file.parent} folder")
-                print(f"...File {file} skipped\n")
-                continue
-            else:
-                logging.error(f"Invalid Input: {action}")
-                break
+        case "n":
+            logging.info("Start iterating manually")
+
+            pass
+
+        case _:
+            logging.error(f"Invalid Input: {setting}")
+            return
 
 
 if __name__ == "__main__":
