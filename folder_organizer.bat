@@ -1,3 +1,3 @@
 @echo off
-"C:/Users/Jens/AppData/Local/Programs/Python/Python311/python.exe" C:\Users\Jens\Documents\GitHub\folder-organizing-helper/main.py"
+"C:/Users/Jens/anaconda3/python.exe" "C:/Users/Jens/Documents/GitHub/LittleOrganizeHelper_py/main.py"
 pause
