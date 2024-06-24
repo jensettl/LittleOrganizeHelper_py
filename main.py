@@ -32,6 +32,13 @@ def isNotaFile(file: Path) -> bool:
     return not file.is_file()
 
 
+def printFile(file: Path) -> None:
+    """Prints the file name, file format, and file size."""
+    print(
+        f"File: {file.name} | File format: {file.suffix} | File size: {round(file.stat().st_size/1000000,2)} Megabytes"
+    )
+
+
 def autoSort(file: Path) -> None:
     """Automatically sorts all files of a folder into the appropriate folder based on its file format."""
     format_type: str = file.suffix.lower()
@@ -62,6 +69,34 @@ def autoSort(file: Path) -> None:
             logging.error(f"File {file.name} already exists in 'Other' folder")
 
 
+def manualSort(file: Path) -> None:
+    """Manually sorts all files of a folder into the appropriate folder based on user input."""
+    for file in PATH.iterdir():
+        if isNotaFile(file):
+            continue
+
+        printFile(file)
+
+        setting = input(
+            "What do you want to do with this file? (1) Move automatically, (2) Delete or (3) Skip) > "
+        )
+
+        match (setting):
+            case "1":
+                autoSort(file)
+            case "2":
+                logging.info(f"Deleted {file.name} from {file.parent} folder")
+                print(f"...File {file} deleted\n")
+                os.remove(PATH / file)
+            case "3":
+                logging.info(f"Skipped {file.name} from {file.parent} folder")
+                print(f"...File {file} skipped\n")
+                continue
+            case _:
+                logging.error(f"Invalid Input: {setting}")
+                break
+
+
 def main():
     if invalidPath():
         logging.error("Path is invalid")
@@ -73,15 +108,16 @@ def main():
 
     match (setting):
         case "y":
+            logging.info("Start iterating auto")
             for file in PATH.iterdir():
                 if isNotaFile(file):
                     continue
 
                 autoSort(file)
         case "n":
-            logging.info("Start iterating manually")
+            logging.info("Start iterating manually\n")
 
-            pass
+            manualSort(PATH)
 
         case _:
             logging.error(f"Invalid Input: {setting}")
