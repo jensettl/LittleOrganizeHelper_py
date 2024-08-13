@@ -1,13 +1,10 @@
 import os
 import logging
 from pathlib import Path
-from ressources import FILE_FORMAT_FOLDERS
-import time
+from file_formats import FILE_FORMAT_FOLDERS
 
 
-PATH: Path = Path.home() / "Downloads"  # Path to the folder you want to sort
-FILEFORMATS = list(FILE_FORMAT_FOLDERS.keys())  # List of file formats
-FILETYPES = list(FILE_FORMAT_FOLDERS.values())  # List of file types
+PATH = Path.home() / "Downloads"  # Path to the folder you want to sort
 LOGFILE = Path("logs/file_sorter.log")  # Path to the log file
 
 if not LOGFILE.exists():
@@ -20,9 +17,9 @@ logging.basicConfig(
 )
 
 
-def invalidPath() -> bool:
+def invalidPath(path: Path) -> bool:
     """Checks if the path is invalid."""
-    return not PATH.exists() or not PATH.is_dir()
+    return not path.exists() or not path.is_dir()
 
 
 def isNotaFile(file: Path) -> bool:
@@ -38,20 +35,20 @@ def printFile(file: Path) -> None:
 
 
 def autoSort(file) -> None:
-    """Automatically sorts all files of a folder into the appropriate folder based on its file format."""
+    """Automatically sorts a file into the appropriate folder based on its file format."""
     format_type: str = file.suffix.lower()
 
     if format_type in FILE_FORMAT_FOLDERS:
         folder_name: str = FILE_FORMAT_FOLDERS[format_type]
         folder_path: Path = file.parent / folder_name
 
-        if not folder_path.exists():
+        if invalidPath(folder_path):
+            logging.error(f"Path {folder_path} does not exist. Creating the folder...")
             folder_path.mkdir()
 
         try:
             logging.info(f"Moving {file.name} to {folder_name} folder")
             file.rename(folder_path / file.name)
-            time.sleep(0.2)
         except FileExistsError:
             logging.error(f"File {file.name} already exists in {folder_name} folder")
     else:
@@ -90,7 +87,8 @@ def manualSort(path: Path) -> None:
                 continue
             case "4":
                 customPath = input("Enter the custom path > ")
-                if not Path(customPath).exists():
+
+                if invalidPath(Path(customPath)):
                     logging.error(f"Path {customPath} does not exist")
                     break
 
@@ -105,7 +103,7 @@ def manualSort(path: Path) -> None:
 
 
 def main():
-    if invalidPath():
+    if invalidPath(PATH):
         logging.error("PATH Variable is invalid")
         return
 
