@@ -2,6 +2,7 @@ import os
 import logging
 from pathlib import Path
 from file_formats import FILE_FORMAT_FOLDERS
+import time
 
 
 PATH = Path.home() / "Downloads"  # Path to the folder you want to sort
@@ -49,6 +50,7 @@ def autoSort(file) -> None:
         try:
             logging.info(f"Moving {file.name} to {folder_name} folder")
             file.rename(folder_path / file.name)
+            time.sleep(0.2)
         except FileExistsError:
             logging.error(f"File {file.name} already exists in {folder_name} folder")
     else:
@@ -60,6 +62,7 @@ def autoSort(file) -> None:
 
         try:
             file.rename(other_folder_path / file.name)
+            time.sleep(0.2)
         except FileExistsError:
             logging.error(f"File {file.name} already exists in 'Other' folder")
 
